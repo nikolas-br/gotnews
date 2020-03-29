@@ -52,11 +52,14 @@ const feedListDrawerTemplate = [
   }
 ];
 
-export const proxyPrefix = "https://cors-anywhere.herokuapp.com/";
+export const initFeedList = feedListDrawerTemplate;
 
-export const initFeedList = feedListDrawerTemplate.map(item => ({
-  name: item.name,
-  avatarName: item.avatarName,
-  thumbnail: item.thumbnail,
-  id: proxyPrefix + item.id
-}));
+// export const proxyPrefix = "https://murmuring-taiga-44403.herokuapp.com/";
+
+// export const initFeedList = feedListDrawerTemplate.map(item => ({
+//   name: item.name,
+//   avatarName: item.avatarName,
+//   thumbnail: item.thumbnail,
+//   // id: proxyPrefix + item.id
+//   id: item.id
+// }));

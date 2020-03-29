@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import Feed from "rss-to-json";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -14,9 +13,10 @@ import { MediaCard } from "./uiComponents";
 import { StatusDialog } from "./dialog";
 import { SettingsDialog, AddFeedDialog } from "./dialogues";
 
-//Proxy needed to prevent CORS
-import { proxyPrefix, initFeedList } from "./initFeedList";
+import { initFeedList } from "./initFeedList";
 import { FirebaseContext } from "./firebase";
+const API_ADRESS = "https://gotnews-server.herokuapp.com/get";
+// const API_ADRESS = "http://localhost:3000/get";
 
 const darkTheme = createMuiTheme({
   palette: {
@@ -41,9 +41,9 @@ const AppWrapper = props => (
 class App extends Component {
   state = {
     feedListDrawer: [],
-    feedToShow: [],
-    read: [],
-    favorites: [],
+    feedToShow: {},
+    read: new Map(),
+    favorites: new Map(),
     dialogMessage: null,
     dialogTitle: "",
     isAddFeedOpen: false,
@@ -57,7 +57,6 @@ class App extends Component {
     database: null
   };
 
-  //IMPLEMENT error catching for getEntries
   componentDidMount() {
     this.listener = this.props.firebase.auth.onAuthStateChanged(authUser => {
       if (authUser) {
@@ -70,7 +69,7 @@ class App extends Component {
         this.initLoadData(authUser);
       } else {
         this.setState({ feedListDrawer: initFeedList });
-        this.getFeed(initFeedList[0].id);
+        this.getFeedToShow(initFeedList[0].id);
       }
     });
   }
@@ -86,38 +85,89 @@ class App extends Component {
       this.props.firebase.getEntries(authUser, "/data/favorites"),
       this.props.firebase.getEntries(authUser, "/data/read")
     ]).then(([settings, initFeedList, favorites, read]) => {
+      const favoritesMap = new Map();
+      const readMap = new Map();
+
+      for (let entry of favorites.inputData)
+        favoritesMap.set(entry.link, entry);
+
+      for (let entry of read.inputData) readMap.set(entry.link, entry);
+
       this.setState({
         isDarkMode: settings.inputData,
         feedListDrawer: initFeedList.inputData,
-        favorites: favorites.inputData,
-        read: read.inputData
+        favorites: favoritesMap,
+        read: readMap
       });
+
       if (initFeedList.inputData.length > 0)
-        this.getFeed(initFeedList.inputData[0].id);
+        this.getFeedToShow(initFeedList.inputData[0].id);
     });
   }
 
-  //Proper error messages needed, complications due to differently formatted objects
-  getFeed(url) {
-    Feed.load(url, (error, result) => {
-      if (error != null) {
-        console.error("Error getFeed: ", error);
-        // if (typeof error.response.statusText !== "undefined")
-        //   error = error.response.statusText;
-        this.setState({
-          dialogMessage: "Error",
-          dialogTitle: "Something went wrong..."
-        });
-      } else {
-        const newFeed = this.parseFeed(result, url);
-        newFeed.items[0] = this.transferProperties(newFeed);
+  async getFeed(url, avatarText, avatarThumbnail) {
+    let feedObj = {};
 
-        this.setState({
-          feedToShow: newFeed.items[0],
-          showsFeed: url,
-          isLoading: false
+    //feedObj: data: [{link: "feedlink", avatarText: "NZZ", avatarThumbnail: "link"}]
+    feedObj = { data: [{ link: url, avatarText, avatarThumbnail }] };
+
+    return new Promise((resolve, reject) => {
+      fetch(API_ADRESS, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json"
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *client
+        body: JSON.stringify(feedObj) // body data type must match "Content-Type" header
+      })
+        .then(result => result.json())
+        .then(json => {
+          if (json.length === 0) {
+            reject(new Error("Feed cannot be loaded"));
+            return;
+          }
+          let map = new Map();
+
+          for (let entry of json) map.set(entry.link, entry);
+
+          resolve(map);
         });
-      }
+    });
+  }
+
+  async getAllFeeds(feedObj) {
+    //feedObj: data: [{link: "feedlink", avatarText: "NZZ", avatarThumbnail: "link"}]
+    feedObj = { data: feedObj };
+
+    return new Promise((resolve, reject) => {
+      fetch(API_ADRESS, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json"
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *client
+        body: JSON.stringify(feedObj) // body data type must match "Content-Type" header
+      })
+        .then(result => result.json())
+        .then(json => {
+          if (json.length === 0) {
+            reject(new Error("Feed cannot be loaded"));
+            return;
+          }
+          let map = new Map();
+
+          for (let entry of json) map.set(entry.link, entry);
+
+          resolve(map);
+        });
     });
   }
 
@@ -126,83 +176,34 @@ class App extends Component {
     for (let item of this.state.feedListDrawer) {
       if (item.id === url) return [item.avatarName, item.thumbnail];
     }
-    return ["", null];
+    return ["", ""];
   };
 
   //Transfer properties isRead and isFavorite to updated feed
   transferProperties(newFeed) {
-    return newFeed.items[0].map(feed => {
-      for (let favorite of this.state.favorites) {
-        if (feed.link === favorite.link) feed.isFavorite = true;
-      }
-      for (let read of this.state.read) {
-        if (feed.link === read.link) feed.isRead = true;
-      }
+    newFeed.forEach(item => {
+      if (this.state.read.has(item.link)) item.isRead = true;
 
-      return feed;
+      if (this.state.favorites.has(item.link)) item.isFavorite = true;
     });
   }
 
-  parseFeed(jsonFeed, url) {
-    let newFeed = {};
-    let newEntries = [];
+  getFeedToShow = async url => {
+    const [avatarText, avatarThumbnail] = this.getAvatarProps(url);
 
-    const channelKeys = ["description", "title", "image", "category", "url"];
-    const itemKeys = ["title", "description", "link", "pubDate", "category"];
-
-    if ("items" in jsonFeed) {
-      for (let item of jsonFeed["items"]) {
-        let newEntry = {};
-
-        for (let itmKey of itemKeys) {
-          if (typeof item[itmKey] === "undefined")
-            newEntry = { ...newEntry, [itmKey]: "" };
-          else newEntry = { ...newEntry, [itmKey]: item[itmKey] };
-        }
-
-        //Filter out description of items if they contain meta data
-        if (newEntry.description.includes("<")) newEntry.description = "";
-        //Change date to more readable format
-        const date = new Date(newEntry.pubDate);
-        newEntry.pubDate = date.toLocaleString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit"
+    this.getFeed(url, avatarText, avatarThumbnail)
+      .then(feed => {
+        this.transferProperties(feed);
+        this.setState({ feedToShow: feed, showsFeed: url, isLoading: false });
+      })
+      .catch(error => {
+        this.setState({
+          dialogMessage: error.message,
+          dialogTitle: "Error",
+          isLoading: false,
+          feedToShow: new Map()
         });
-
-        const [avatarName, avatarThumbnail] = this.getAvatarProps(url);
-
-        //Add new item to array of stories, add values for app functions
-        newEntries = [
-          ...newEntries,
-          {
-            ...newEntry,
-            isFavorite: false,
-            avatarThumbnail: avatarThumbnail,
-            avatarText: avatarName,
-            rootTitle: jsonFeed["title"],
-            isRead: false
-          }
-        ];
-      }
-    }
-    //Sort feed by date
-    this.sortFeed(newEntries);
-
-    for (let chKey of channelKeys)
-      newFeed = { ...newFeed, [chKey]: jsonFeed[chKey] };
-
-    newFeed = { ...newFeed, items: [newEntries] };
-
-    return newFeed;
-  }
-
-  getFeedToShow = url => {
-    this.getFeed(url);
-    this.setState({ showsFeed: url });
+      });
   };
 
   getFavorites = () => {
@@ -214,39 +215,28 @@ class App extends Component {
   };
 
   getAllItemsToShow = () => {
-    this.setState({ feedToShow: [] });
-    const urlList = this.state.feedListDrawer.map(entry => entry.id);
+    const feedList = this.state.feedListDrawer.map(entry => ({
+      link: entry.id,
+      avatarText: entry.avatarName,
+      avatarThumbnail: entry.thumbnail
+    }));
 
-    for (let url of urlList) {
-      Feed.load(url, (error, result) => {
-        if (error != null) {
-          console.error("Error getFeed: ", error);
-          this.setState({
-            dialogMessage: error,
-            dialogTitle: "Something went wrong..."
-          });
-          return;
-        } else {
-          const newFeed = this.parseFeed(result, url);
-          newFeed.items[0] = this.transferProperties(newFeed);
-
-          this.setState({
-            feedToShow: [...this.state.feedToShow, ...newFeed.items[0]]
-          });
-
-          if (url === urlList[urlList.length - 1]) {
-            const feedToShow = [...this.state.feedToShow];
-            this.sortFeed(feedToShow);
-
-            this.setState({
-              feedToShow,
-              showsFeed: "allItems",
-              isLoading: false
-            });
-          }
-        }
+    this.getAllFeeds(feedList)
+      .then(feed => {
+        this.transferProperties(feed);
+        this.setState({
+          showsFeed: "allItems",
+          isLoading: false,
+          feedToShow: feed
+        });
+      })
+      .catch(error => {
+        this.setState({
+          dialogMessage: error.message,
+          dialogTitle: "Error",
+          isLoading: false
+        });
       });
-    }
   };
 
   getReadItems = () => {
@@ -297,54 +287,52 @@ class App extends Component {
     });
   }
 
-  sortFeed(feed) {
-    feed.sort((a, b) =>
-      Date.parse(a.pubDate) < Date.parse(b.pubDate) ? 1 : -1
-    );
-  }
-
   onClickStarToggle = id => {
-    let feedToShowCopy = [...this.state.feedToShow];
-    let favoritesCopy = [...this.state.favorites];
+    let favoritesCopy = new Map(this.state.favorites);
+    let feedToShowCopy = new Map(this.state.feedToShow);
+    const entry = feedToShowCopy.get(id);
 
-    for (let entry of feedToShowCopy)
-      if (entry.link === id) {
-        if (entry.isFavorite)
-          favoritesCopy = favoritesCopy.filter(entry => entry.link !== id);
-        else favoritesCopy = [entry, ...favoritesCopy];
-
-        entry.isFavorite = !entry.isFavorite;
-        break;
-      }
+    if (favoritesCopy.has(id)) {
+      entry.isFavorite = false;
+      favoritesCopy.delete(id);
+      feedToShowCopy.set(entry.link, entry);
+    } else {
+      entry.isFavorite = true;
+      favoritesCopy.set(entry.link, entry);
+      feedToShowCopy.set(entry.link, entry);
+    }
 
     this.setState({ feedToShow: feedToShowCopy, favorites: favoritesCopy });
+
+    let fav = [];
+    favoritesCopy.forEach(entry => (fav = [...fav, entry]));
 
     this.props.firebase.createEntry(
       this.state.authUser,
       "/data/favorites",
-      favoritesCopy,
+      fav,
       "favorites"
     );
   };
 
   onClickCard = id => {
-    let feedToShowCopy = [...this.state.feedToShow];
-    let readCopy = [...this.state.read];
+    let readCopy = new Map(this.state.read);
+    let feedToShowCopy = new Map(this.state.feedToShow);
+    const entry = feedToShowCopy.get(id);
 
-    for (let entry of feedToShowCopy)
-      if (entry.link === id) {
-        if (!entry.isRead) readCopy = [entry, ...readCopy];
-
-        entry.isRead = true;
-        break;
-      }
+    entry.isRead = true;
+    readCopy.set(entry.link, entry);
+    feedToShowCopy.set(entry.link, entry);
 
     this.setState({ feedToShow: feedToShowCopy, read: readCopy });
+
+    let read = [];
+    readCopy.forEach(entry => (read = [...read, entry]));
 
     this.props.firebase.createEntry(
       this.state.authUser,
       "/data/read",
-      readCopy,
+      read,
       "read"
     );
   };
@@ -397,10 +385,7 @@ class App extends Component {
     this.setState({ isShowAddFeed: !this.state.isShowAddFeed });
   };
 
-  //Proper error messages needed, complications due to differently formatted objects
-  handleAddFeed = (name, url) => {
-    url = proxyPrefix + url;
-
+  handleAddFeed = async (name, url) => {
     //Prevent duplicate feeds
     if (
       this.state.feedListDrawer.filter(item => item.id === url).length !== 0
@@ -412,40 +397,32 @@ class App extends Component {
       return;
     }
 
+    const newFeedListDrawerEntry = {
+      name: name.trim(),
+      avatarName: name.trim().slice(0, 3),
+      thumbnail: "",
+      id: url
+    };
+
     this.setState({ isLoading: true });
 
-    Feed.load(url, (error, result) => {
-      if (error != null) {
-        console.error("Error getFeed: ", error);
-        // if (typeof error.response.statusText !== "undefined")
-        //   error = error.response.statusText;
-        this.setState({
-          dialogMessage: "Error",
-          dialogTitle: "Something went wrong...",
-          isLoading: false
-        });
-      } else {
-        const newFeedListDrawerEntry = {
-          name: name.trim(),
-          avatarName: name.trim().slice(0, 3),
-          avatarThumbnail: null,
-          id: url
-        };
-        const feedListDrawer = [
+    this.getFeed(
+      url,
+      newFeedListDrawerEntry.avatarName,
+      newFeedListDrawerEntry.thumbnail
+    )
+      .then(feed => {
+        let feedListDrawer = [
           ...this.state.feedListDrawer,
           newFeedListDrawerEntry
         ];
 
-        const newFeed = this.parseFeed(result, url);
-        for (let item of newFeed.items[0])
-          item.avatarText = newFeedListDrawerEntry.avatarName;
-
         this.setState({
-          feedToShow: newFeed.items[0],
-          dialogTitle: "Feed added",
-          dialogMessage: "Enjoy reading!",
-          isLoading: false,
+          feedToShow: feed,
           showsFeed: url,
+          isLoading: false,
+          dialogMessage: "Enjoy reading!",
+          dialogTitle: "Feed added",
           feedListDrawer
         });
 
@@ -455,9 +432,40 @@ class App extends Component {
           feedListDrawer,
           "initFeedList"
         );
-      }
-    });
+      })
+      .catch(error => {
+        this.setState({
+          dialogTitle: "Error",
+          dialogMessage: error.message,
+          isLoading: false
+        });
+      });
   };
+
+  // async checkFeed(url) {
+  //   const feed = { url: [url] };
+
+  //   return new Promise((resolve, reject) => {
+  //     fetch(API_ADRESS, {
+  //       method: "POST", // *GET, POST, PUT, DELETE, etc.
+  //       mode: "cors", // no-cors, *cors, same-origin
+  //       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+  //       credentials: "same-origin", // include, *same-origin, omit
+  //       headers: {
+  //         "Content-Type": "application/json"
+  //         // 'Content-Type': 'application/x-www-form-urlencoded',
+  //       },
+  //       redirect: "follow", // manual, *follow, error
+  //       referrerPolicy: "no-referrer", // no-referrer, *client
+  //       body: JSON.stringify(feed) // body data type must match "Content-Type" header
+  //     })
+  //       .then(result => result.json())
+  //       .then(json => {
+  //         if (json.length === 0) reject("Error loading feed");
+  //         else resolve();
+  //       });
+  //   });
+  // }
 
   render() {
     return (
@@ -488,8 +496,8 @@ class App extends Component {
         <Drawer
           onClickDrawerItem={this.onClickDrawerItem}
           feedListDrawer={this.state.feedListDrawer}
-          favoritesCount={this.state.favorites.length}
-          readCount={this.state.read.length}
+          favoritesCount={this.state.favorites.size}
+          readCount={this.state.read.size}
           doSignOut={this.props.firebase.doSignOut}
         />
 
@@ -510,7 +518,7 @@ class App extends Component {
 export default AppWrapper;
 
 // Stateless functions
-////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 const drawerWidth = 240;
 
@@ -561,20 +569,20 @@ function Main(props) {
 
       {props.isLoading ? null : (
         <Grid container spacing={3}>
-          {props.feedToShow.map((item, key) => (
+          {Array.from(props.feedToShow).map(item => (
             <MediaCard
-              key={key}
-              title={item.title}
-              description={item.description}
-              link={item.link}
+              key={item[1].link}
+              title={item[1].title}
+              description={item[1].description}
+              link={item[1].link}
               headerTitle={"H"}
-              date={item.pubDate}
-              avatarText={item.avatarText}
-              avatarThumbnail={item.avatarThumbnail}
-              isFavorite={item.isFavorite}
-              rootTitle={item.rootTitle}
+              date={item[1].pubDate}
+              avatarText={item[1].avatarText}
+              avatarThumbnail={item[1].avatarThumbnail}
+              isFavorite={item[1].isFavorite}
+              rootTitle={item[1].rootTitle}
               onClickStarToggle={props.onClickStarToggle}
-              isRead={item.isRead}
+              isRead={item[1].isRead}
               onClickCard={props.onClickCard}
             />
           ))}

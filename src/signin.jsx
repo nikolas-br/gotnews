@@ -59,7 +59,7 @@ class SignInPage extends Component {
             Try a demo first
           </Link>
         </Box>
-        <Box style={{ position: "absolute", bottom: "2px", right: "2px" }}>
+        <Box style={{ position: "absolute", bottom: "5px", right: "10px" }}>
           <Typography variant="caption">© Nikolas Bruecher</Typography>
         </Box>
       </div>
