@@ -14,10 +14,10 @@ import * as ROUTES from "./routes";
 import { Link as RouterLink, withRouter } from "react-router-dom";
 import { FirebaseContext } from "./firebase";
 
-const SignInPageWrapper = props => (
+const SignInPageWrapper = (props) => (
   <div>
     <FirebaseContext.Consumer>
-      {firebase => <SignInPage {...props} firebase={firebase} />}
+      {(firebase) => <SignInPage {...props} firebase={firebase} />}
     </FirebaseContext.Consumer>
   </div>
 );
@@ -25,11 +25,11 @@ const SignInPageWrapper = props => (
 class SignInPage extends Component {
   state = { email: "", password: "", error: "" };
 
-  onFormChange = e => {
+  onFormChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   };
 
-  onClickSignIn = e => {
+  onClickSignIn = (e) => {
     e.preventDefault();
 
     this.props.firebase
@@ -37,7 +37,7 @@ class SignInPage extends Component {
       .then(() => {
         this.props.history.push(ROUTES.APP);
       })
-      .catch(error => {
+      .catch((error) => {
         this.setState({ error });
       });
   };
@@ -58,6 +58,10 @@ class SignInPage extends Component {
           <Link component={RouterLink} to={ROUTES.APP} variant="subtitle2">
             Try a demo first
           </Link>
+          <Typography variant="subtitle2" gutterBottom>
+            Please note that the first load may take several seconds (free
+            hosting)
+          </Typography>
         </Box>
         <Box style={{ position: "absolute", bottom: "5px", right: "10px" }}>
           <Typography variant="caption">© Nikolas Bruecher</Typography>
@@ -69,24 +73,24 @@ class SignInPage extends Component {
 
 export default withRouter(SignInPageWrapper);
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(20),
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main
+    backgroundColor: theme.palette.secondary.main,
   },
   form: {
     width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(1)
+    marginTop: theme.spacing(1),
   },
   submit: {
-    margin: theme.spacing(3, 0, 2)
-  }
+    margin: theme.spacing(3, 0, 2),
+  },
 }));
 
 function SignIn(props) {

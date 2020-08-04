@@ -16,19 +16,25 @@ import CheckIcon from "@material-ui/icons/Check";
 
 const useStyles = makeStyles({
   root: {
-    maxWidth: "100%"
+    maxWidth: "100%",
   },
   media: {
     height: 150,
-    width: 150
-  }
+    width: 150,
+  },
+  actionArea: {
+    padding: 0,
+    // minHeight: 65,
+    "&:last-child": {
+      paddingBottom: 0,
+    },
+  },
 });
 
-export function MediaCard({
+export const MediaCard = ({
   title,
   description,
   link,
-  headerTitle,
   date,
   avatarText,
   avatarThumbnail,
@@ -36,18 +42,13 @@ export function MediaCard({
   rootTitle,
   onClickStarToggle,
   isRead,
-  onClickCard
-}) {
+  onClickCard,
+}) => {
   const classes = useStyles();
 
   return (
-    <Grid item lg={6} sm={12} xs={12}>
+    <Grid item lg={12} sm={12} xs={12}>
       <Card className={classes.root}>
-        {/* <CardMedia
-            className={classes.media}
-            image={}
-            title="Contemplative Reptile"
-          /> */}
         <CardHeader
           avatar={
             <Avatar
@@ -65,10 +66,7 @@ export function MediaCard({
                   <CheckIcon style={{ color: "green" }} />
                 </IconButton>
               ) : null}
-              <IconButton
-                aria-label="settings"
-                onClick={() => onClickStarToggle(link)}
-              >
+              <IconButton onClick={() => onClickStarToggle(link)}>
                 {isFavorite ? (
                   <StarIcon style={{ color: "#FFD700" }} />
                 ) : (
@@ -82,7 +80,7 @@ export function MediaCard({
         />
         <CardActionArea>
           <Link
-            href={link}
+            // href={link}
             target="_blank"
             underline="none"
             onClick={() => onClickCard(link)}
@@ -105,4 +103,69 @@ export function MediaCard({
       </Card>
     </Grid>
   );
-}
+};
+
+export const MediaCardCompact = ({
+  title,
+  description,
+  link,
+  date,
+  avatarText,
+  avatarThumbnail,
+  isFavorite,
+  rootTitle,
+  onClickStarToggle,
+  isRead,
+  onClickCard,
+}) => {
+  const classes = useStyles();
+
+  return (
+    <Grid item lg={12} sm={12} xs={12}>
+      <Card className={classes.root}>
+        <CardHeader
+          avatar={
+            <Avatar src={avatarThumbnail} className={classes.avatar}>
+              {avatarText}
+            </Avatar>
+          }
+          action={
+            <div>
+              {isRead ? (
+                <IconButton disabled>
+                  <CheckIcon style={{ color: "green" }} />
+                </IconButton>
+              ) : null}
+              <IconButton onClick={() => onClickStarToggle(link)}>
+                {isFavorite ? (
+                  <StarIcon style={{ color: "#FFD700" }} />
+                ) : (
+                  <StarBorderIcon style={{ color: "#FFD700" }} />
+                )}
+              </IconButton>
+            </div>
+          }
+          title={rootTitle}
+          style={{ paddingTop: "11px", paddingBottom: "7px" }}
+        />
+        <CardActionArea className={classes.actionArea}>
+          <Link
+            // href={link}
+            target="_blank"
+            underline="none"
+            onClick={() => onClickCard(link)}
+          >
+            <CardContent style={{ paddingTop: "5px", paddingBottom: "7px" }}>
+              <Typography variant="body1" color="textPrimary" component="p">
+                {title}
+              </Typography>
+              <Typography variant="body2" color="textSecondary" component="p">
+                {description}
+              </Typography>
+            </CardContent>
+          </Link>
+        </CardActionArea>
+      </Card>
+    </Grid>
+  );
+};

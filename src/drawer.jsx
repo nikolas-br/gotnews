@@ -16,7 +16,7 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import RssFeedIcon from "@material-ui/icons/RssFeed";
 import Box from "@material-ui/core/Box";
-import AddCircleIcon from "@material-ui/icons/AddCircle";
+import AddIcon from "@material-ui/icons/Add";
 import Avatar from "@material-ui/core/Avatar";
 import SettingsIcon from "@material-ui/icons/Settings";
 import LockIcon from "@material-ui/icons/Lock";
@@ -24,46 +24,52 @@ import Grid from "@material-ui/core/Grid";
 import StarIcon from "@material-ui/icons/Star";
 import CheckIcon from "@material-ui/icons/Check";
 import Badge from "@material-ui/core/Badge";
+import SearchIcon from "@material-ui/icons/Search";
+import PopoverMenu from "./popoverMenu";
 
 import * as ROUTES from "./routes";
 import { withRouter } from "react-router-dom";
 
 const drawerWidth = 240;
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex"
+    display: "flex",
   },
   drawer: {
     [theme.breakpoints.up("sm")]: {
       width: drawerWidth,
-      flexShrink: 0
-    }
+      flexShrink: 0,
+    },
   },
   appBar: {
     [theme.breakpoints.up("sm")]: {
       width: `calc(100% - ${drawerWidth}px)`,
-      marginLeft: drawerWidth
+      marginLeft: drawerWidth,
     },
-    backgroundColor: "#093170"
+    backgroundColor: "#093170",
   },
   menuButton: {
     marginRight: theme.spacing(2),
     [theme.breakpoints.up("sm")]: {
-      display: "none"
-    }
+      display: "none",
+    },
   },
   toolbar: theme.mixins.toolbar,
   drawerPaper: {
-    width: drawerWidth
+    width: drawerWidth,
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3)
-  }
+    padding: theme.spacing(3),
+  },
+  orange: {
+    // color: theme.palette.getContrastText(deepOrange[500]),
+    backgroundColor: "success.main",
+  },
 }));
 
-function ResponsiveDrawer(props) {
+const ResponsiveDrawer = (props) => {
   const { container } = props;
   const classes = useStyles();
   const theme = useTheme();
@@ -112,9 +118,16 @@ function ResponsiveDrawer(props) {
           </ListItemIcon>
           <ListItemText primary="Clicked articles" />
         </ListItem>
+
+        <ListItem button onClick={() => props.onClickDrawerItem("search")}>
+          <ListItemIcon>
+            <SearchIcon />
+          </ListItemIcon>
+          <ListItemText primary="Search" />
+        </ListItem>
         <Divider />
 
-        {props.feedListDrawer.map(item => (
+        {props.feedListDrawer.map((item) => (
           <ListItem
             button
             key={item.id}
@@ -135,7 +148,14 @@ function ResponsiveDrawer(props) {
           onClick={() => props.onClickDrawerItem("addFeed")}
         >
           <ListItemIcon>
-            <AddCircleIcon color="primary" />
+            <Avatar
+              style={{
+                color: "white",
+                backgroundColor: "green",
+              }}
+            >
+              <AddIcon />
+            </Avatar>
           </ListItemIcon>
           <ListItemText primary="Add feed" />
         </ListItem>
@@ -174,7 +194,7 @@ function ResponsiveDrawer(props) {
     <div className={classes.root}>
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
-        <Toolbar>
+        <Toolbar style={{ justifyContent: "space-between" }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -184,14 +204,24 @@ function ResponsiveDrawer(props) {
           >
             <MenuIcon />
           </IconButton>
-          <RssFeedIcon />
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <RssFeedIcon />
 
-          <Typography variant="h6" noWrap>
-            GotNews!
-          </Typography>
+            <Typography variant="h6" noWrap>
+              GotNews!
+            </Typography>
+          </div>
+          <PopoverMenu
+            isCompact={props.isCompact}
+            isDarkMode={props.isDarkMode}
+            isScreenReader={props.isScreenReader}
+            toggleCompactLayout={props.toggleCompactLayout}
+            toggleDarkMode={props.toggleDarkMode}
+            toggleScreenReader={props.toggleScreenReader}
+          />
         </Toolbar>
       </AppBar>
-      <nav className={classes.drawer} aria-label="mailbox folders">
+      <nav className={classes.drawer} aria-label="feeds">
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Hidden smUp implementation="css">
           <Drawer
@@ -201,10 +231,10 @@ function ResponsiveDrawer(props) {
             open={mobileOpen}
             onClose={handleDrawerToggle}
             classes={{
-              paper: classes.drawerPaper
+              paper: classes.drawerPaper,
             }}
             ModalProps={{
-              keepMounted: true // Better open performance on mobile.
+              keepMounted: true, // Better open performance on mobile.
             }}
           >
             {drawer}
@@ -213,7 +243,7 @@ function ResponsiveDrawer(props) {
         <Hidden xsDown implementation="css">
           <Drawer
             classes={{
-              paper: classes.drawerPaper
+              paper: classes.drawerPaper,
             }}
             variant="permanent"
             open
@@ -224,6 +254,6 @@ function ResponsiveDrawer(props) {
       </nav>
     </div>
   );
-}
+};
 
 export default withRouter(ResponsiveDrawer);

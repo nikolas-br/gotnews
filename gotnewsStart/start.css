@@ -1,0 +1,93 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  /* background-color: #424242; */
+}
+
+.wantNews {
+  font-size: 10vw;
+  font-family: "Playfair Display", serif;
+  /* color: #093170; */
+  margin-bottom: -2vh;
+}
+
+.gotNews {
+  font-size: 10vw;
+  font-family: "Roboto", sans-serif;
+  font-weight: bolder;
+  color: #093170;
+  margin-left: 10vw;
+}
+
+.textContainer {
+  /* width: 60%; */
+  /* margin: auto; */
+  margin-top: 10%;
+  margin-left: 10%;
+  margin-bottom: 1%;
+  /* margin-right: auto; */
+  /* /display: inline; */
+  /* align-content: center; */
+}
+
+.button {
+  margin: auto;
+  margin-top: 30px;
+  display: block;
+  width: 64%;
+  height: 40px;
+  border-radius: 5px;
+  border: 0;
+  font-family: "Roboto", sans-serif;
+  font-weight: bolder;
+  font-size: larger;
+  color: beige;
+  background-color: #424242;
+}
+
+.button:hover {
+  color: beige;
+  background-color: #093170;
+  transform: scale(1.02);
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+}
+
+.footer {
+  margin-top: 30vh;
+  background-color: #093170;
+
+  width: 100%;
+  height: 100px;
+}
+
+#rssLogo {
+  font-size: 1000px;
+  color: grey;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.image {
+  width: 64%;
+  /* transform: scale(0.5); */
+  margin: auto;
+  display: block;
+}
+
+.rss {
+  background-image: url(./css.svg);
+  /* height: 100vh; */
+  height: 100vh;
+  /* background-size: 50vh 50vw; */
+  /* background-position: -20vw 30vh; */
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-attachment: fixed;
+  background-position: left bottom;
+  transform: scale(0.4);
+}

@@ -18,10 +18,10 @@ import { Link as RouterLink, withRouter } from "react-router-dom";
 import { FirebaseContext } from "./firebase";
 import { initFeedList } from "./initFeedList";
 
-const SignUpWrapper = props => (
+const SignUpWrapper = (props) => (
   <div>
     <FirebaseContext.Consumer>
-      {firebase => <SignUpPage {...props} firebase={firebase} />}
+      {(firebase) => <SignUpPage {...props} firebase={firebase} />}
     </FirebaseContext.Consumer>
   </div>
 );
@@ -33,26 +33,26 @@ class SignUpPage extends Component {
     email: "",
     password: "",
     password2: "",
-    error: null
+    error: null,
   };
 
-  onFormChange = e => {
+  onFormChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   };
 
-  onClickSignUp = e => {
+  onClickSignUp = (e) => {
     e.preventDefault();
 
     if (this.state.password !== this.state.password2) {
       this.setState({
-        error: { message: "Passwords don't match..." }
+        error: { message: "Passwords don't match..." },
       });
       return;
     }
 
     this.props.firebase
       .doCreateUserWithEmailAndPassword(this.state.email, this.state.password)
-      .then(authUser => {
+      .then((authUser) => {
         this.props.firebase.createEntry(
           authUser.user,
           "/data/initFeedList",
@@ -74,14 +74,28 @@ class SignUpPage extends Component {
         const isDarkMode = true;
         this.props.firebase.createEntry(
           authUser.user,
-          "/data/settings",
+          "/data/isDarkMode",
           isDarkMode,
-          "settings"
+          "isDarkMode"
+        );
+        const isCompact = false;
+        this.props.firebase.createEntry(
+          authUser.user,
+          "/data/isCompact",
+          isCompact,
+          "isCompact"
+        );
+        const isScreenReader = false;
+        this.props.firebase.createEntry(
+          authUser.user,
+          "/data/isScreenReader",
+          isScreenReader,
+          "isScreenReader"
         );
 
         this.props.history.push(ROUTES.APP);
       })
-      .catch(error => {
+      .catch((error) => {
         this.setState({ error });
       });
   };
@@ -105,24 +119,24 @@ class SignUpPage extends Component {
 
 export default withRouter(SignUpWrapper);
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(20),
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main
+    backgroundColor: theme.palette.secondary.main,
   },
   form: {
     width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(3)
+    marginTop: theme.spacing(3),
   },
   submit: {
-    margin: theme.spacing(3, 0, 2)
-  }
+    margin: theme.spacing(3, 0, 2),
+  },
 }));
 
 function SignUp(props) {

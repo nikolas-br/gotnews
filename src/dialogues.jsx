@@ -11,10 +11,8 @@ import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import CloseIcon from "@material-ui/icons/Close";
 import Slide from "@material-ui/core/Slide";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
-import Switch from "@material-ui/core/Switch";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Avatar from "@material-ui/core/Avatar";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
@@ -22,14 +20,14 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import TextField from "@material-ui/core/TextField";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   appBar: {
-    position: "relative"
+    position: "relative",
   },
   title: {
     marginLeft: theme.spacing(2),
-    flex: 1
-  }
+    flex: 1,
+  },
 }));
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -61,7 +59,7 @@ export function SettingsDialog(props) {
 
                 <Grid item xs={12}>
                   <List>
-                    {props.feedListDrawer.map(item => (
+                    {props.feedListDrawer.map((item) => (
                       <ListItem key={item.id}>
                         <ListItemIcon>
                           <Avatar
@@ -86,26 +84,23 @@ export function SettingsDialog(props) {
                     ))}
                   </List>
                 </Grid>
-                <Box mt={15}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={props.isDarkMode}
-                        onChange={() => props.toggleDarkMode()}
-                        color="primary"
-                      />
-                    }
-                    label="Dark Mode"
-                  />
-                </Box>
+
                 <Grid
-                  item
-                  xs={12}
-                  style={{ textAlign: "center", marginTop: "40px" }}
+                  container
+                  style={{
+                    marginTop: "30px",
+                  }}
+                  justify="center"
+                  direction="column"
+                  alignItems="center"
                 >
-                  <Typography gutterBottom>
-                    You are logged in as {props.loggedInAs}
-                  </Typography>
+                  <Box mt={10} mb={5}>
+                    <Typography gutterBottom>
+                      {props.loggedInAs
+                        ? "You are logged in as " + props.loggedInAs
+                        : "You are not logged in"}
+                    </Typography>
+                  </Box>
                 </Grid>
               </Grid>
             </Grid>
@@ -120,7 +115,7 @@ export function AddFeedDialog(props) {
   const [name, setName] = useState("");
   const [url, setURL] = useState("");
 
-  const onSubmit = event => {
+  const onSubmit = (event) => {
     event.preventDefault();
     props.handleAddFeed(name, url);
   };
@@ -150,26 +145,26 @@ export function AddFeedDialog(props) {
                 <Grid item xs={12}>
                   <form>
                     <TextField
-                      onChange={event => setName(event.target.value)}
+                      onChange={(event) => setName(event.target.value)}
                       name="name"
                       label="Name"
                       placeholder="Choose a name for the feed"
                       fullWidth
                       margin="normal"
                       InputLabelProps={{
-                        shrink: true
+                        shrink: true,
                       }}
                       variant="outlined"
                     />
                     <TextField
-                      onChange={event => setURL(event.target.value)}
+                      onChange={(event) => setURL(event.target.value)}
                       name="url"
                       label="RSS URL"
                       placeholder="URL of the news source, must be RSS"
                       fullWidth
                       margin="normal"
                       InputLabelProps={{
-                        shrink: true
+                        shrink: true,
                       }}
                       variant="outlined"
                     />
