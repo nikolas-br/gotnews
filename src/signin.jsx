@@ -44,7 +44,7 @@ class SignInPage extends Component {
 
   render() {
     return (
-      <div>
+      <Container component="main" maxWidth="xs">
         <SignIn
           onFormChange={this.onFormChange}
           onClickSignIn={this.onClickSignIn}
@@ -58,7 +58,11 @@ class SignInPage extends Component {
           <Link component={RouterLink} to={ROUTES.APP} variant="subtitle2">
             Try a demo first
           </Link>
-          <Typography variant="subtitle2" gutterBottom>
+          <Typography
+            variant="subtitle2"
+            gutterBottom
+            style={{ marginTop: 10, color: "grey" }}
+          >
             Please note that the first load may take several seconds (free
             hosting)
           </Typography>
@@ -66,7 +70,7 @@ class SignInPage extends Component {
         <Box style={{ position: "absolute", bottom: "5px", right: "10px" }}>
           <Typography variant="caption">© Nikolas Bruecher</Typography>
         </Box>
-      </div>
+      </Container>
     );
   }
 }
@@ -97,76 +101,71 @@ function SignIn(props) {
   const classes = useStyles();
 
   return (
-    <Container component="main" maxWidth="xs">
+    <div className={classes.paper}>
       <CssBaseline />
-      <div className={classes.paper}>
-        <Grid
-          container
-          spacing={0}
-          direction="row"
-          justify="center"
-          alignItems="flex-end"
+
+      <Grid
+        container
+        spacing={0}
+        direction="row"
+        justify="center"
+        alignItems="flex-end"
+      >
+        <Grid item>
+          <RssFeedIcon style={{ fontSize: "65" }} />
+        </Grid>
+        <Grid item>
+          <Typography variant="h2">GotNews!</Typography>
+        </Grid>
+      </Grid>
+      <br />
+
+      <form className={classes.form} onChange={props.onFormChange} noValidate>
+        <TextField
+          variant="outlined"
+          margin="normal"
+          required
+          fullWidth
+          id="email"
+          label="Email Address"
+          name="email"
+          autoComplete="email"
+          // autoFocus
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          required
+          fullWidth
+          name="password"
+          label="Password"
+          type="password"
+          id="password"
+          autoComplete="current-password"
+        />
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          color="primary"
+          className={classes.submit}
+          onClick={props.onClickSignIn}
         >
-          <Grid item>
-            <RssFeedIcon style={{ fontSize: "65" }} />
+          Sign In
+        </Button>
+        <Grid container>
+          <Grid item xs>
+            <Link href="#" variant="body2">
+              Forgot password?
+            </Link>
           </Grid>
           <Grid item>
-            <Typography variant="h2">GotNews!</Typography>
+            <Link component={RouterLink} to={ROUTES.SIGN_UP} variant="body2">
+              Don't have an account? Sign Up
+            </Link>
           </Grid>
         </Grid>
-        <br />
-
-        <form className={classes.form} onChange={props.onFormChange} noValidate>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
-            // autoFocus
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-          />
-          {/* <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          /> */}
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-            onClick={props.onClickSignIn}
-          >
-            Sign In
-          </Button>
-          <Grid container>
-            <Grid item xs>
-              <Link href="#" variant="body2">
-                Forgot password?
-              </Link>
-            </Grid>
-            <Grid item>
-              <Link component={RouterLink} to={ROUTES.SIGN_UP} variant="body2">
-                Don't have an account? Sign Up
-              </Link>
-            </Grid>
-          </Grid>
-        </form>
-      </div>
-    </Container>
+      </form>
+    </div>
   );
 }

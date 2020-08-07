@@ -13,6 +13,7 @@ import StarBorderIcon from "@material-ui/icons/StarBorder";
 import StarIcon from "@material-ui/icons/Star";
 import Link from "@material-ui/core/Link";
 import CheckIcon from "@material-ui/icons/Check";
+import AddBoxIcon from "@material-ui/icons/AddBox";
 
 const useStyles = makeStyles({
   root: {
@@ -165,6 +166,71 @@ export const MediaCardCompact = ({
             </CardContent>
           </Link>
         </CardActionArea>
+      </Card>
+    </Grid>
+  );
+};
+
+// const mediaCardSearchStyles = makeStyles({
+//   img: {
+//     objectFit: "contain",
+//   },
+// });
+
+export const MediaCardSearch = ({
+  title,
+  description,
+  link,
+  feedURL,
+  avatarThumbnail,
+  handleAddFeed,
+  isSubscribed,
+}) => {
+  // const classes = mediaCardSearchStyles();
+
+  const onAddFeedClick = () => {
+    if (!isSubscribed) handleAddFeed(title, feedURL, avatarThumbnail);
+  };
+
+  return (
+    <Grid item lg={12} sm={12} xs={12}>
+      <Card>
+        <CardHeader
+          avatar={
+            <Avatar
+              src={avatarThumbnail}
+              // classes={{ img: classes.img }}
+            >
+              {title.slice(0, 2)}
+            </Avatar>
+          }
+          action={
+            <div>
+              <IconButton onClick={onAddFeedClick}>
+                <AddBoxIcon
+                  fontSize="large"
+                  htmlColor={isSubscribed ? "green" : "#1976d2"}
+                />
+              </IconButton>
+            </div>
+          }
+          title={title}
+          titleTypographyProps={{ variant: "body1" }}
+          style={{ paddingTop: "11px", paddingBottom: "11px" }}
+        />
+        <CardContent style={{ paddingTop: "5px", paddingBottom: "10px" }}>
+          <Typography variant="body2" color="textSecondary" component="p">
+            {description}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            component="p"
+            style={{ marginTop: 5 }}
+          >
+            {link}
+          </Typography>
+        </CardContent>
       </Card>
     </Grid>
   );

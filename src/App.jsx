@@ -8,9 +8,9 @@ import { ThemeProvider } from "@material-ui/styles";
 
 import Drawer from "./drawer";
 import { MediaCard, MediaCardCompact } from "./mediaCards";
-import { StatusDialog } from "./dialog";
-import { SettingsDialog, AddFeedDialog } from "./dialogues";
-// import StatusSnackbar from "./snackbar";
+import { StatusDialog } from "./statusDialog";
+import { SettingsDialog } from "./settingsDialog";
+import { AddFeedDialog } from "./addFeedDialog";
 import { SearchScreen } from "./searchScreen";
 
 import { initFeedList } from "./initFeedList";
@@ -248,6 +248,16 @@ class App extends Component {
     this.getAllFeeds(feedList)
       .then((feed) => {
         this.transferProperties(feed);
+
+        // If size of list is too great, slice it
+        if (feed.size > 20) {
+          const res = Array.from(feed).slice(0, 500);
+          feed.clear();
+          res.forEach((e) => {
+            feed.set(e[0], e[1]);
+          });
+        }
+
         this.setState({
           showsFeed: "allItems",
           isLoading: false,
@@ -471,11 +481,11 @@ class App extends Component {
     );
   };
 
-  handleAddFeed = async (name, url) => {
+  handleAddFeed = async (name, url, thumbnail = "") => {
     //Prevent duplicate feeds
     if (this.state.feedListDrawer.filter((item) => item.id === url).length) {
       this.setState({
-        dialogTitle: "error",
+        dialogTitle: "Error",
         dialogMessage: "The feed is already in your list",
       });
       return;
@@ -484,7 +494,7 @@ class App extends Component {
     const newFeedListDrawerEntry = {
       name: name.trim(),
       avatarName: name.trim().slice(0, 3),
-      thumbnail: "",
+      thumbnail,
       id: url,
     };
 
@@ -506,7 +516,7 @@ class App extends Component {
           showsFeed: url,
           isLoading: false,
           dialogMessage: "Enjoy reading!",
-          dialogTitle: "success",
+          dialogTitle: "Success",
           feedListDrawer,
         });
 
@@ -535,17 +545,13 @@ class App extends Component {
           resetDialogToggle={this.resetDialogToggle}
         />
 
-        {/* <StatusSnackbar
-          message={this.state.dialogMessage}
-          title={this.state.dialogTitle}
-          resetDialogToggle={this.resetDialogToggle}
-        /> */}
-
         <AddFeedDialog
           isOpen={this.state.isShowAddFeed}
           toggleAddFeedDialog={this.toggleAddFeedDialog}
           handleAddFeed={this.handleAddFeed}
           isLoading={this.state.isLoading}
+          isDarkMode={this.state.isDarkMode}
+          feedListDrawer={this.state.feedListDrawer}
         />
 
         <SettingsDialog
@@ -566,7 +572,7 @@ class App extends Component {
           favoritesCount={this.state.favorites.size}
           readCount={this.state.read.size}
           doSignOut={this.props.firebase.doSignOut}
-          // Props for popover menu:
+          // Props for popover menu on top right corner:
           isCompact={this.state.isCompact}
           isDarkMode={this.state.isDarkMode}
           isScreenReader={this.state.isScreenReader}
