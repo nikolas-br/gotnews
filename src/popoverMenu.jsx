@@ -69,7 +69,7 @@ export default function PopoverMenu({
           onClick={onToggleScreenReader}
           style={{ color: isScreenReader ? "red" : "inherit" }}
         >
-          {isScreenReader ? "Disable" : "Enable"} ScreenReader (BETA)
+          {isScreenReader ? "Disable" : "Enable"} Readability
         </MenuItem>
       </Menu>
     </div>

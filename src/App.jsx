@@ -399,10 +399,10 @@ class App extends Component {
       referrerPolicy: "no-referrer",
       body: JSON.stringify(payload),
     })
-      .then((result) => result.json())
+      .then((result) => result.text())
       .then((article) => {
         const newWindow = window.open("", "_blank");
-        newWindow.document.write(article.content);
+        newWindow.document.write(article);
       })
       .catch((error) => console.log(error));
   };
