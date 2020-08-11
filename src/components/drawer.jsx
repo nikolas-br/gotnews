@@ -27,7 +27,7 @@ import Badge from "@material-ui/core/Badge";
 import SearchIcon from "@material-ui/icons/Search";
 import PopoverMenu from "./popoverMenu";
 
-import * as ROUTES from "./routes";
+import * as ROUTES from "../routes";
 import { withRouter } from "react-router-dom";
 
 const drawerWidth = 240;

@@ -16,7 +16,6 @@ import Container from "@material-ui/core/Container";
 import * as ROUTES from "./routes";
 import { Link as RouterLink, withRouter } from "react-router-dom";
 import { FirebaseContext } from "./firebase";
-import { initFeedList } from "./initFeedList";
 
 const SignUpWrapper = (props) => (
   <div>
@@ -53,45 +52,7 @@ class SignUpPage extends Component {
     this.props.firebase
       .doCreateUserWithEmailAndPassword(this.state.email, this.state.password)
       .then((authUser) => {
-        this.props.firebase.createEntry(
-          authUser.user,
-          "/data/initFeedList",
-          initFeedList,
-          "initFeedList"
-        );
-        this.props.firebase.createEntry(
-          authUser.user,
-          "/data/favorites",
-          [],
-          "favorites"
-        );
-        this.props.firebase.createEntry(
-          authUser.user,
-          "/data/read",
-          [],
-          "read"
-        );
-        const isDarkMode = true;
-        this.props.firebase.createEntry(
-          authUser.user,
-          "/data/isDarkMode",
-          isDarkMode,
-          "isDarkMode"
-        );
-        const isCompact = false;
-        this.props.firebase.createEntry(
-          authUser.user,
-          "/data/isCompact",
-          isCompact,
-          "isCompact"
-        );
-        const isScreenReader = false;
-        this.props.firebase.createEntry(
-          authUser.user,
-          "/data/isScreenReader",
-          isScreenReader,
-          "isScreenReader"
-        );
+        this.props.firebase.initEntries(authUser.user);
 
         this.props.history.push(ROUTES.APP);
       })

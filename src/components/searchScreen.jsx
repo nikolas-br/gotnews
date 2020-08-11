@@ -79,8 +79,6 @@ export const SearchScreen = ({
           placeholder="Search terms"
           variant="outlined"
           fullWidth
-          autoComplete={false}
-          autoCorrect={false}
           autoFocus={true}
           onChange={onSearchChange}
         />

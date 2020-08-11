@@ -13,10 +13,10 @@ import Box from "@material-ui/core/Box";
 import TextField from "@material-ui/core/TextField";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Pagination from "@material-ui/lab/Pagination";
-
-import { API_ADRESS_SEARCH } from "./constants";
-import { MediaCardSearch } from "./mediaCards";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
+
+import { API_ADRESS_SEARCH } from "../constants";
+import { MediaCardSearch } from "./mediaCards";
 
 const addFeedDialogStyle = makeStyles({
   rootDark: {
