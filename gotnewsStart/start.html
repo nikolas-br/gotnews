@@ -4,40 +4,94 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GotNews!</title>
-
     <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500&family=Roboto&display=swap"
-      rel="stylesheet"
-    />
-
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Roboto:wght@300;400;500&display=swap"
       rel="stylesheet"
     />
 
     <link rel="stylesheet" href="start.css" />
+
+    <noscript>Your browser does not support JavaScript!</noscript>
   </head>
   <body>
-    <!-- <span id="rssLogo" class="material-icons">
-      rss_feed
-    </span> -->
-    <div class="textContainer">
-      <p class="wantNews">Want news?</p>
-      <p class="gotNews">GotNews!</p>
+    <div class="maskingTop"></div>
+    <div class="headerBackground">
+      <div class="headerContainer">
+        <div class="textContainer">
+          <p class="wantNews">Want news?</p>
+          <p class="gotNews">GotNews!</p>
+        </div>
+      </div>
     </div>
 
-    <img class="image" src="./Gruppe 7.png" alt="" />
+    <img class="image" src="screener1.jpg" alt="" />
+    <!-- <img class="image" src="iphone.jpg" alt="" /> -->
 
-    <button class="button">Try a demo</button>
+    <div class="mainBackground">
+      <div class="mainContainer">
+        <p>GotNews! is a simple rss reader.</p>
+        <ul>
+          <li>
+            Choose from more than 1700 feeds.
+          </li>
+          <li>
+            No advertisement - no distraction.
+          </li>
+          <li>
+            Totally free!
+          </li>
+        </ul>
+      </div>
+    </div>
 
-    <div class="footer"></div>
-    <!-- <img
-      src="css.svg"
-      alt=""
-      width="70%"
-      style="position: absolute; bottom: 0; left: 0;"
-    /> -->
+    <div class="buttonGroup">
+      <button
+        onclick="window.location.href='https://gotnews-c66d0.firebaseapp.com/signin'"
+      >
+        Create account
+      </button>
+      <button
+        onclick="window.location.href='https://gotnews-c66d0.firebaseapp.com/app'"
+      >
+        Try the demo
+      </button>
+    </div>
 
-    <!-- <div class="rss"></div> -->
+    <footer>
+      <p>© Nikolas Brücher</p>
+    </footer>
+
+    <script>
+      document.querySelector(".wantNews").classList.add("animateText");
+      document.querySelector(".gotNews").classList.add("animateText");
+      document.querySelector(".image").classList.add("slideDownAnimation");
+      const mainContainerElements = document.querySelectorAll(
+        ".mainContainer *"
+      );
+      mainContainerElements.forEach((e) =>
+        e.classList.add("slideDownAnimation")
+      );
+
+      window.addEventListener("load", function () {
+        document.querySelector("body").style.opacity = 1;
+
+        document.querySelector(".wantNews").classList.remove("animateText");
+
+        document.querySelector(".gotNews").classList.remove("animateText");
+
+        document.querySelector(".image").classList.remove("slideDownAnimation");
+      });
+
+      window.addEventListener("scroll", () => {
+        const element = document.querySelector(".mainContainer p");
+        if (window.scrollY - element.getBoundingClientRect().top > 0) {
+          mainContainerElements.forEach((e, i) => {
+            setTimeout(() => {
+              e.classList.remove("slideDownAnimation");
+            }, i * 200);
+          });
+        }
+      });
+    </script>
   </body>
 </html>

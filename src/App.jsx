@@ -66,6 +66,8 @@ class App extends Component {
         this.getFeedToShow(initFeedList[0].id);
       }
     });
+
+    window.history.pushState(null, "GotNews!");
   }
 
   componentWillUnmount() {

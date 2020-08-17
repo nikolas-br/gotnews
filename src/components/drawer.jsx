@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
       width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: drawerWidth,
     },
-    backgroundColor: "#093170",
+    ...theme.appBar,
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -62,10 +62,6 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
-  },
-  orange: {
-    // color: theme.palette.getContrastText(deepOrange[500]),
-    backgroundColor: "success.main",
   },
 }));
 
@@ -194,7 +190,7 @@ const ResponsiveDrawer = (props) => {
     <div className={classes.root}>
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
-        <Toolbar style={{ justifyContent: "space-between" }}>
+        <Toolbar style={{ justifyContent: "center" }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -204,10 +200,18 @@ const ResponsiveDrawer = (props) => {
           >
             <MenuIcon />
           </IconButton>
-          <div style={{ display: "flex", alignItems: "center" }}>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flex: 1,
+            }}
+          >
             <RssFeedIcon />
 
-            <Typography variant="h6" noWrap>
+            <Typography variant="h5" noWrap>
               GotNews!
             </Typography>
           </div>

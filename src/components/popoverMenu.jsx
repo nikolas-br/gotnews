@@ -11,6 +11,7 @@ export default function PopoverMenu({
   toggleCompactLayout,
   toggleDarkMode,
   toggleScreenReader,
+  iconStyle,
 }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -49,7 +50,7 @@ export default function PopoverMenu({
         aria-controls="popover-menu"
         aria-haspopup="true"
       >
-        <MoreVertIcon />
+        <MoreVertIcon style={{ color: "white" }} />
       </IconButton>
       <Menu
         id="popover-menu"

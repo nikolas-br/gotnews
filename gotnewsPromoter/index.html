@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="GotNews! is a simple and free rss feed reader."
+    />
+    <meta name="”robots”" content="index" />
+
+    <title>GotNews!</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Roboto:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="index.css" />
+
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" sizes="any" />
+
+    <noscript>Your browser does not support JavaScript!</noscript>
+  </head>
+  <body>
+    <div class="maskingTop"></div>
+    <div class="headerBackground">
+      <div class="headerContainer">
+        <div class="textContainer">
+          <p class="wantNews">Want news?</p>
+          <div class="gotNews">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="black"
+            >
+              <path d="M0 0h24v24H0z" fill="none" />
+              <circle cx="6.18" cy="17.82" r="2.18" />
+              <path
+                d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"
+              />
+            </svg>
+            <p>GotNews!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <img class="image" src="screener1.jpg" alt="" />
+
+    <div class="mainBackground">
+      <div class="mainContainer">
+        <p>GotNews! is a simple rss reader.</p>
+        <ul>
+          <li>
+            Choose from more than 1700 feeds.
+          </li>
+          <li>
+            No advertisement - no distraction.
+          </li>
+          <li>
+            Totally free!
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="buttonGroup">
+      <button
+        onclick="window.location.href='https://gotnews-c66d0.firebaseapp.com/signin'"
+      >
+        Create account
+      </button>
+      <button
+        onclick="window.location.href='https://gotnews-c66d0.firebaseapp.com/app'"
+      >
+        Try the demo
+      </button>
+    </div>
+
+    <footer>
+      <div class="footerContainer">
+        <p>© Nikolas Brücher</p>
+      </div>
+    </footer>
+    <div class="maskingBottom"></div>
+  </body>
+  <script>
+    document.querySelector(".wantNews").classList.add("animateText");
+    document.querySelector(".gotNews").classList.add("animateText");
+    document.querySelector(".image").classList.add("slideDownAnimation");
+    const mainContainerElements = document.querySelectorAll(".mainContainer *");
+    mainContainerElements.forEach((e) => e.classList.add("slideDownAnimation"));
+
+    window.addEventListener("load", function () {
+      document.querySelector("body").style.opacity = 1;
+
+      document.querySelector(".wantNews").classList.remove("animateText");
+
+      document.querySelector(".gotNews").classList.remove("animateText");
+
+      document.querySelector(".image").classList.remove("slideDownAnimation");
+
+      createObserver();
+    });
+
+    function createObserver() {
+      const element = document.querySelector(".mainContainer");
+
+      let options = {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.8,
+      };
+
+      const observer = new IntersectionObserver(handleIntersect, options);
+      observer.observe(element);
+    }
+
+    function handleIntersect(entries, observer) {
+      if (!entries[0].isIntersecting) return;
+
+      mainContainerElements.forEach((e, i) => {
+        setTimeout(() => {
+          e.classList.remove("slideDownAnimation");
+        }, i * 200);
+      });
+    }
+  </script>
+</html>
