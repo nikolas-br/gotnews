@@ -1,4 +1,4 @@
-<bold>Simple rss news reader with React and Material UI.</bold>
+Simple rss news reader implemented with React, Material UI and firebase for data storage and user authentication.
 
 You can find the backend in another repository.
 Feel free to fork it, license is MIT.
