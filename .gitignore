@@ -24,6 +24,6 @@ yarn-error.log*
 
 .env
 
-.vscode 
+/.vscode 
 
-.firebase
+/.firebase
