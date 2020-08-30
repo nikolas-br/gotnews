@@ -60,25 +60,5 @@ export const getAllFeeds = async (feedObj) => {
 };
 
 export const getArticleScreenReader = async (link) => {
-  const payload = {
-    data: { link },
-  };
-
-  return new Promise((resolve, reject) => {
-    fetch(CONST.API_ADRESS_GETSTORY, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((result) => result.text())
-      .then((article) => {
-        resolve(article);
-      })
-      .catch((error) => {
-        console.log(error);
-        reject(error);
-      });
-  });
+  return `${CONST.API_ADRESS_GETSTORY}${link}`;
 };

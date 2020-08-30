@@ -251,9 +251,8 @@ class App extends Component {
   };
 
   screenReaderGetArticle = (link) => {
-    getArticleScreenReader(link).then((article) => {
-      const newWindow = window.open("", "_blank");
-      newWindow.document.write(article);
+    getArticleScreenReader(link).then((link) => {
+      window.open(link, "_blank");
     });
   };
 

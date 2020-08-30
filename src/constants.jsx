@@ -1,6 +1,6 @@
 export const API_ADRESS = "https://gotnews-server.herokuapp.com/get";
 export const API_ADRESS_GETSTORY =
-  "https://gotnews-server.herokuapp.com/getStory";
+  "https://gotnews-server.herokuapp.com/getStory?page=";
 export const API_ADRESS_SEARCH = "https://gotnews-server.herokuapp.com/search";
 // export const API_ADRESS = "http://localhost:3000/get";
 // export const API_ADRESS_GETSTORY = "http://localhost:3000/getStory";
