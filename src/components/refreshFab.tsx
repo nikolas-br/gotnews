@@ -1,9 +1,18 @@
 import React from "react";
 import Fab from "@material-ui/core/Fab";
 import SyncIcon from "@material-ui/icons/Sync";
+import { DrawerItems } from "../types";
 
-export const RefreshFab = (props) => {
-  if (props.showsFeed === "favorites" || props.showsFeed === "readItems")
+type RefreshFabProps = {
+  showsFeed: string;
+  onClickRefresh: () => void;
+};
+
+export const RefreshFab = ({ showsFeed, onClickRefresh }: RefreshFabProps) => {
+  if (
+    showsFeed === DrawerItems.Favorites ||
+    showsFeed === DrawerItems.ReadItems
+  )
     return <div></div>;
 
   return (
@@ -14,9 +23,9 @@ export const RefreshFab = (props) => {
         position: "fixed",
         bottom: "15px",
         right: "15px",
-        zIndex: "1",
+        // zIndex: "1",
       }}
-      onClick={props.onClickRefresh}
+      onClick={onClickRefresh}
     >
       <SyncIcon />
     </Fab>

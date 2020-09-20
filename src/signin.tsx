@@ -11,10 +11,14 @@ import Container from "@material-ui/core/Container";
 import RssFeedIcon from "@material-ui/icons/RssFeed";
 
 import * as ROUTES from "./routes";
-import { Link as RouterLink, withRouter } from "react-router-dom";
-import { FirebaseContext } from "./firebase";
+import {
+  Link as RouterLink,
+  RouteComponentProps,
+  withRouter,
+} from "react-router-dom";
+import Firebase, { FirebaseContext } from "./firebase";
 
-const SignInPageWrapper = (props) => (
+const SignInPageWrapper = (props: any) => (
   <div>
     <FirebaseContext.Consumer>
       {(firebase) => <SignInPage {...props} firebase={firebase} />}
@@ -22,14 +26,32 @@ const SignInPageWrapper = (props) => (
   </div>
 );
 
-class SignInPage extends Component {
+type SignInPageProps = {
+  firebase: Firebase;
+  history: RouteComponentProps;
+} & RouteComponentProps;
+
+type SignInPageState = {
+  email: string;
+  password: string;
+  error: null | string;
+};
+
+class SignInPage extends Component<SignInPageProps, SignInPageState> {
   state = { email: "", password: "", error: "" };
 
-  onFormChange = (e) => {
-    this.setState({ [e.target.name]: e.target.value });
+  onFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    switch (e.target.name) {
+      case "email":
+        this.setState({ email: e.target.value });
+        break;
+      case "password":
+        this.setState({ password: e.target.value });
+        break;
+    }
   };
 
-  onClickSignIn = (e) => {
+  onClickSignIn = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     this.props.firebase
@@ -38,7 +60,7 @@ class SignInPage extends Component {
         this.props.history.push(ROUTES.APP);
       })
       .catch((error) => {
-        this.setState({ error });
+        this.setState({ error: error.message });
       });
   };
 
@@ -51,7 +73,7 @@ class SignInPage extends Component {
         />
         <Box mt={4} style={{ textAlign: "center" }}>
           <Typography variant="subtitle2" color="error" gutterBottom>
-            {this.state.error ? this.state.error.message : null}
+            {this.state.error ? this.state.error : null}
           </Typography>
         </Box>
         <Box mt={8} style={{ textAlign: "center" }}>
@@ -97,7 +119,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function SignIn(props) {
+type SignInProps = {
+  onFormChange: (e: any) => void;
+  onClickSignIn: (e: any) => void;
+};
+
+const SignIn = ({ onFormChange, onClickSignIn }: SignInProps) => {
   const classes = useStyles();
 
   return (
@@ -120,7 +147,7 @@ function SignIn(props) {
       </Grid>
       <br />
 
-      <form className={classes.form} onChange={props.onFormChange} noValidate>
+      <form className={classes.form} onChange={onFormChange} noValidate>
         <TextField
           variant="outlined"
           margin="normal"
@@ -149,7 +176,7 @@ function SignIn(props) {
           variant="contained"
           color="primary"
           className={classes.submit}
-          onClick={props.onClickSignIn}
+          onClick={onClickSignIn}
         >
           Sign In
         </Button>
@@ -168,4 +195,4 @@ function SignIn(props) {
       </form>
     </div>
   );
-}
+};

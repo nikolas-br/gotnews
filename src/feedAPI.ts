@@ -2,11 +2,14 @@
 // Provides API for retrieving feeds from backend
 ////////////////////////////////////////////////////////////////
 import * as CONST from "./constants";
+import { Feed, FeedReq } from "./types";
 
-export const getFeed = async (url, avatarText, avatarThumbnail) => {
-  let feedObj = {};
-
-  //feedObj: data: [{link: "feedlink", avatarText: "NZZ", avatarThumbnail: "link"}]
+export const getFeed = async (
+  url: string,
+  avatarText: string,
+  avatarThumbnail: string
+): Promise<Map<string, Feed>> => {
+  let feedObj: FeedReq;
   feedObj = { data: [{ link: url, avatarText, avatarThumbnail }] };
 
   return new Promise((resolve, reject) => {
@@ -32,9 +35,11 @@ export const getFeed = async (url, avatarText, avatarThumbnail) => {
   });
 };
 
-export const getAllFeeds = async (feedObj) => {
+export const getAllFeeds = async (
+  feedObj: FeedReq
+): Promise<Map<string, Feed>> => {
   //feedObj: data: [{link: "feedlink", avatarText: "NZZ", avatarThumbnail: "link"}]
-  feedObj = { data: feedObj };
+  // feedObj = { data: feedObj };
 
   return new Promise((resolve, reject) => {
     fetch(CONST.API_ADRESS, {
@@ -59,6 +64,6 @@ export const getAllFeeds = async (feedObj) => {
   });
 };
 
-export const getArticleScreenReader = async (link) => {
+export const getArticleScreenReader = (link: string): string => {
   return `${CONST.API_ADRESS_GETSTORY}${link}`;
 };

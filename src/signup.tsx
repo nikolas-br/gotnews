@@ -3,8 +3,6 @@ import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
-// import FormControlLabel from "@material-ui/core/FormControlLabel";
-// import Checkbox from "@material-ui/core/Checkbox";
 import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
@@ -14,10 +12,14 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 
 import * as ROUTES from "./routes";
-import { Link as RouterLink, withRouter } from "react-router-dom";
-import { FirebaseContext } from "./firebase";
+import {
+  Link as RouterLink,
+  RouteComponentProps,
+  withRouter,
+} from "react-router-dom";
+import Firebase, { FirebaseContext } from "./firebase";
 
-const SignUpWrapper = (props) => (
+const SignUpWrapper = (props: any) => (
   <div>
     <FirebaseContext.Consumer>
       {(firebase) => <SignUpPage {...props} firebase={firebase} />}
@@ -25,26 +27,46 @@ const SignUpWrapper = (props) => (
   </div>
 );
 
-class SignUpPage extends Component {
-  state = {
-    firstName: "",
-    lastName: "",
+type SignUpPageProps = {
+  firebase: Firebase;
+  history: RouteComponentProps;
+} & RouteComponentProps;
+
+type SignUpPageState = {
+  email: string;
+  password: string;
+  password2: string;
+  error: null | string;
+};
+
+class SignUpPage extends Component<SignUpPageProps, SignUpPageState> {
+  state: SignUpPageState = {
     email: "",
     password: "",
     password2: "",
     error: null,
   };
 
-  onFormChange = (e) => {
-    this.setState({ [e.target.name]: e.target.value });
+  onFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    switch (e.target.name) {
+      case "email":
+        this.setState({ email: e.target.value });
+        break;
+      case "password":
+        this.setState({ password: e.target.value });
+        break;
+      case "password2":
+        this.setState({ password2: e.target.value });
+        break;
+    }
   };
 
-  onClickSignUp = (e) => {
+  onClickSignUp = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (this.state.password !== this.state.password2) {
       this.setState({
-        error: { message: "Passwords don't match..." },
+        error: "Passwords don't match...",
       });
       return;
     }
@@ -57,7 +79,7 @@ class SignUpPage extends Component {
         this.props.history.push(ROUTES.APP);
       })
       .catch((error) => {
-        this.setState({ error });
+        this.setState({ error: error.message });
       });
   };
 
@@ -70,7 +92,7 @@ class SignUpPage extends Component {
         />
         <div style={{ textAlign: "center" }}>
           <Typography variant="subtitle2" color="error" gutterBottom>
-            {this.state.error ? this.state.error.message : null}
+            {this.state.error ? this.state.error : null}
           </Typography>
         </div>
       </div>
@@ -100,7 +122,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function SignUp(props) {
+type SignUpProps = {
+  onFormChange: (e: any) => void;
+  onClickSignUp: (e: any) => void;
+};
+
+const SignUp = ({ onFormChange, onClickSignUp }: SignUpProps) => {
   const classes = useStyles();
 
   return (
@@ -113,7 +140,7 @@ function SignUp(props) {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <form className={classes.form} onChange={props.onFormChange} noValidate>
+        <form className={classes.form} onChange={onFormChange} noValidate>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -157,7 +184,7 @@ function SignUp(props) {
             variant="contained"
             color="primary"
             className={classes.submit}
-            onClick={props.onClickSignUp}
+            onClick={onClickSignUp}
           >
             Sign Up
           </Button>
@@ -173,4 +200,4 @@ function SignUp(props) {
       <Box mt={5}></Box>
     </Container>
   );
-}
+};

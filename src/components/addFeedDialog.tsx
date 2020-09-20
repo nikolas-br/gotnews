@@ -17,6 +17,7 @@ import ButtonGroup from "@material-ui/core/ButtonGroup";
 
 import { API_ADRESS_SEARCH } from "../constants";
 import { MediaCardSearch } from "./mediaCards";
+import { FeedList } from "../types";
 
 const addFeedDialogStyle = makeStyles({
   rootDark: {
@@ -27,9 +28,18 @@ const addFeedDialogStyle = makeStyles({
   },
 });
 
-const Transition = React.forwardRef(function Transition(props, ref) {
+const Transition: any = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
+
+type AddFeedDialogProps = {
+  isOpen: boolean;
+  isDarkMode: boolean;
+  isLoading: boolean;
+  handleAddFeed: (name: string, url: string, thumbnail?: string) => void;
+  toggleAddFeedDialog: () => void;
+  feedListDrawer: FeedList;
+};
 
 export function AddFeedDialog({
   isOpen,
@@ -38,7 +48,7 @@ export function AddFeedDialog({
   handleAddFeed,
   toggleAddFeedDialog,
   feedListDrawer,
-}) {
+}: AddFeedDialogProps) {
   const [isOption1, setIsOption1] = useState(true);
 
   const classes = addFeedDialogStyle();
@@ -113,11 +123,19 @@ export function AddFeedDialog({
   );
 }
 
-export function AddFeedFromURL({ handleAddFeed, isLoading }) {
+type AddFeedFromURLProps = {
+  handleAddFeed: (name: string, url: string, thumbnail?: string) => void;
+  isLoading: boolean;
+};
+
+export function AddFeedFromURL({
+  handleAddFeed,
+  isLoading,
+}: AddFeedFromURLProps) {
   const [name, setName] = useState("");
   const [url, setURL] = useState("");
 
-  const onSubmit = (event) => {
+  const onSubmit = (event: any) => {
     event.preventDefault();
     handleAddFeed(name, url);
   };
@@ -170,13 +188,23 @@ export function AddFeedFromURL({ handleAddFeed, isLoading }) {
   );
 }
 
-export function SearchFeeds({ isLoading, handleAddFeed, feedListDrawer }) {
+type SearchFeedsProps = {
+  isLoading: boolean;
+  handleAddFeed: (name: string, url: string, thumbnail?: string) => void;
+  feedListDrawer: FeedList;
+};
+
+export function SearchFeeds({
+  isLoading,
+  handleAddFeed,
+  feedListDrawer,
+}: SearchFeedsProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
-  const onSearch = (event) => {
+  const onSearch = (event: any) => {
     event.preventDefault();
 
     setPage(1);
@@ -184,7 +212,7 @@ export function SearchFeeds({ isLoading, handleAddFeed, feedListDrawer }) {
   };
 
   // Loads search result, newPage=0 for first load
-  const onPaginate = (newPage) => {
+  const onPaginate = (newPage: number) => {
     const payload = { data: { search: searchTerm, page: newPage } };
 
     fetch(API_ADRESS_SEARCH, {
@@ -273,18 +301,36 @@ export function SearchFeeds({ isLoading, handleAddFeed, feedListDrawer }) {
   );
 }
 
-const SearchResults = ({ searchResults, handleAddFeed, feedListDrawer }) => {
+type SearchResults = {
+  title: string;
+  description: string;
+  image: string;
+  feedURL: string;
+  link: string;
+};
+
+type SearchResultsProps = {
+  searchResults: SearchResults[];
+  handleAddFeed: (name: string, url: string, thumbnail?: string) => void;
+  feedListDrawer: FeedList;
+};
+
+const SearchResults = ({
+  searchResults,
+  handleAddFeed,
+  feedListDrawer,
+}: SearchResultsProps) => {
   if (!searchResults) return null;
 
   // Get already subscribed feeds (urls) into a map for quicker access
   const existingFeedSubs = new Map();
   feedListDrawer.forEach((e) => {
-    existingFeedSubs.set(e.id);
+    existingFeedSubs.set(e.id, "");
   });
 
   return (
     <Grid container spacing={1}>
-      {searchResults.map((e, i) => (
+      {searchResults.map((e: SearchResults, i: number) => (
         <MediaCardSearch
           key={i}
           title={e.title}
@@ -300,7 +346,7 @@ const SearchResults = ({ searchResults, handleAddFeed, feedListDrawer }) => {
   );
 };
 
-const AddFeedLoadingIndicator = ({ isLoading }) => {
+const AddFeedLoadingIndicator = ({ isLoading }: { isLoading: boolean }) => {
   if (!isLoading) return null;
 
   return (

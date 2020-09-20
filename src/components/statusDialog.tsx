@@ -6,22 +6,32 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-export function StatusDialog(props) {
+type StatusDialogProps = {
+  title: string;
+  message: string | null;
+  resetDialogToggle: () => void;
+};
+
+export function StatusDialog({
+  title,
+  message,
+  resetDialogToggle,
+}: StatusDialogProps) {
   return (
     <React.Fragment>
       <Dialog
         fullWidth={true}
         maxWidth={"sm"}
-        open={props.message !== null ? true : false}
-        onClose={props.resetDialogToggle}
+        open={message !== null ? true : false}
+        onClose={resetDialogToggle}
         aria-labelledby="dialog"
       >
-        <DialogTitle id="dialog">{props.title}</DialogTitle>
+        <DialogTitle id="dialog">{title}</DialogTitle>
         <DialogContent>
-          <DialogContentText>{props.message}</DialogContentText>
+          <DialogContentText>{message}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={props.resetDialogToggle} color="primary">
+          <Button onClick={resetDialogToggle} color="primary">
             Close
           </Button>
         </DialogActions>

@@ -32,6 +32,20 @@ const useStyles = makeStyles({
   },
 });
 
+export type MediaCardProps = {
+  title: string;
+  description: string;
+  link: string;
+  date: string;
+  avatarText: string;
+  avatarThumbnail: string;
+  isFavorite: boolean;
+  rootTitle: string;
+  onClickStarToggle: (id: string) => void;
+  isRead: boolean;
+  onClickCard: (id: string) => void;
+};
+
 export const MediaCard = ({
   title,
   description,
@@ -44,7 +58,7 @@ export const MediaCard = ({
   onClickStarToggle,
   isRead,
   onClickCard,
-}) => {
+}: MediaCardProps) => {
   const classes = useStyles();
 
   return (
@@ -52,11 +66,7 @@ export const MediaCard = ({
       <Card className={classes.root}>
         <CardHeader
           avatar={
-            <Avatar
-              aria-label="avatarThumbnail"
-              src={avatarThumbnail}
-              className={classes.avatar}
-            >
+            <Avatar aria-label="avatarThumbnail" src={avatarThumbnail}>
               {avatarText}
             </Avatar>
           }
@@ -118,18 +128,14 @@ export const MediaCardCompact = ({
   onClickStarToggle,
   isRead,
   onClickCard,
-}) => {
+}: MediaCardProps) => {
   const classes = useStyles();
 
   return (
     <Grid item lg={12} sm={12} xs={12}>
       <Card className={classes.root}>
         <CardHeader
-          avatar={
-            <Avatar src={avatarThumbnail} className={classes.avatar}>
-              {avatarText}
-            </Avatar>
-          }
+          avatar={<Avatar src={avatarThumbnail}>{avatarText}</Avatar>}
           action={
             <div>
               {isRead ? (
@@ -177,6 +183,20 @@ export const MediaCardCompact = ({
 //   },
 // });
 
+type MediaCardSearchProps = {
+  title: string;
+  description: string;
+  link: string;
+  feedURL: string;
+  avatarThumbnail: string;
+  handleAddFeed: (
+    title: string,
+    feedURL: string,
+    avatarThumbnail: string
+  ) => void;
+  isSubscribed: boolean;
+};
+
 export const MediaCardSearch = ({
   title,
   description,
@@ -185,7 +205,7 @@ export const MediaCardSearch = ({
   avatarThumbnail,
   handleAddFeed,
   isSubscribed,
-}) => {
+}: MediaCardSearchProps) => {
   // const classes = mediaCardSearchStyles();
 
   const onAddFeedClick = () => {

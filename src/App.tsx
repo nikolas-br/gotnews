@@ -1,17 +1,17 @@
-import React, { Component } from "react";
 import { ThemeProvider } from "@material-ui/styles";
-import { darkTheme, lightTheme } from "./themes";
-
-import { Main } from "./components/main";
-import Drawer from "./components/drawer";
-import { StatusDialog } from "./components/statusDialog";
-import { SettingsDialog } from "./components/settingsDialog";
+import React, { Component } from "react";
 import { AddFeedDialog } from "./components/addFeedDialog";
-import { initFeedList } from "./initFeedList";
+import Drawer from "./components/drawer";
+import { Main } from "./components/main";
+import { SettingsDialog } from "./components/settingsDialog";
+import { StatusDialog } from "./components/statusDialog";
+import { getAllFeeds, getArticleScreenReader, getFeed } from "./feedAPI";
 import { FirebaseContext } from "./firebase";
-import { getFeed, getAllFeeds, getArticleScreenReader } from "./feedAPI";
+import { initFeedList } from "./initFeedList";
+import { darkTheme, lightTheme } from "./themes";
+import { DrawerItems, Feed, FeedList } from "./types";
 
-const AppWrapper = (props) => (
+const AppWrapper = (props: any) => (
   <div>
     <FirebaseContext.Consumer>
       {(firebase) => <App {...props} firebase={firebase} />}
@@ -19,10 +19,33 @@ const AppWrapper = (props) => (
   </div>
 );
 
-class App extends Component {
-  state = {
+type AppProps = any;
+
+type AppState = {
+  feedListDrawer: FeedList;
+  feedToShow: Map<string, Feed>;
+  read: Map<string, Feed>;
+  favorites: Map<string, Feed>;
+  dialogMessage: string | null;
+  dialogTitle: string;
+  isAddFeedOpen: boolean;
+  showsFeed: string;
+  isLoading: boolean;
+  isShowSettings: boolean;
+  isDarkMode: boolean;
+  isCompact: boolean;
+  isScreenReader: boolean;
+  isSearch: boolean;
+  isShowAddFeed: boolean;
+  authUser: any;
+  authUserEmail: any;
+  listener: any;
+};
+
+class App extends Component<AppProps, AppState> {
+  state: AppState = {
     feedListDrawer: [],
-    feedToShow: {},
+    feedToShow: new Map(),
     read: new Map(),
     favorites: new Map(),
     dialogMessage: null,
@@ -38,48 +61,53 @@ class App extends Component {
     isShowAddFeed: false,
     authUser: null,
     authUserEmail: null,
+    listener: () => null,
   };
 
   componentDidMount() {
-    this.listener = this.props.firebase.auth.onAuthStateChanged((authUser) => {
-      if (authUser) {
-        this.setState({
-          authUser: authUser,
-          authUserEmail: authUser.email,
-        });
+    const listener = this.props.firebase.auth.onAuthStateChanged(
+      (authUser: any) => {
+        this.setState({ listener });
 
-        this.props.firebase.initLoadData(authUser).then(({ ...props }) => {
+        if (authUser) {
           this.setState({
-            isDarkMode: props.isDarkMode,
-            isCompact: props.isCompact,
-            feedListDrawer: props.feedListDrawer,
-            favorites: props.favorites,
-            read: props.read,
-            isScreenReader: props.isScreenReader,
+            authUser: authUser,
+            authUserEmail: authUser.email,
           });
 
-          if (props.feedListDrawer.length > 0)
-            this.getFeedToShow(props.feedListDrawer[0].id);
-        });
-      } else {
-        this.setState({ feedListDrawer: initFeedList });
-        this.getFeedToShow(initFeedList[0].id);
+          this.props.firebase.initLoadData(authUser).then(({ ...props }) => {
+            this.setState({
+              isDarkMode: props.isDarkMode,
+              isCompact: props.isCompact,
+              feedListDrawer: props.feedListDrawer,
+              favorites: props.favorites,
+              read: props.read,
+              isScreenReader: props.isScreenReader,
+            });
+
+            if (props.feedListDrawer.length > 0)
+              this.getFeedToShow(props.feedListDrawer[0].id);
+          });
+        } else {
+          this.setState({ feedListDrawer: initFeedList });
+          this.getFeedToShow(initFeedList[0].id);
+        }
       }
-    });
+    );
 
     window.history.pushState(null, "GotNews!");
   }
 
   componentWillUnmount() {
-    this.listener();
+    this.state.listener();
   }
 
-  setDialogTitle = (title, message) => {
+  setDialogTitle = (title: string, message: string) => {
     this.setState({ dialogTitle: title, dialogMessage: message });
   };
 
   //Get the AvatarName and a thumbnail from state.feedListDrawer, for avatar in cards
-  getAvatarProps = (url) => {
+  getAvatarProps = (url: string) => {
     for (let item of this.state.feedListDrawer) {
       if (item.id === url) return [item.avatarName, item.thumbnail];
     }
@@ -87,7 +115,7 @@ class App extends Component {
   };
 
   //Transfer properties isRead and isFavorite to updated feed
-  transferProperties(newFeed) {
+  transferProperties(newFeed: Map<string, Feed>) {
     newFeed.forEach((item) => {
       if (this.state.read.has(item.link)) item.isRead = true;
 
@@ -95,7 +123,7 @@ class App extends Component {
     });
   }
 
-  getFeedToShow = (url) => {
+  getFeedToShow = (url: string) => {
     const [avatarText, avatarThumbnail] = this.getAvatarProps(url);
 
     getFeed(url, avatarText, avatarThumbnail)
@@ -115,7 +143,7 @@ class App extends Component {
   getFavorites = () => {
     this.setState({
       feedToShow: this.state.favorites,
-      showsFeed: "favorites",
+      showsFeed: DrawerItems.Favorites,
       isLoading: false,
     });
   };
@@ -127,7 +155,7 @@ class App extends Component {
       avatarThumbnail: entry.thumbnail,
     }));
 
-    getAllFeeds(feedList)
+    getAllFeeds({ data: feedList })
       .then((feed) => {
         this.transferProperties(feed);
 
@@ -141,7 +169,7 @@ class App extends Component {
         }
 
         this.setState({
-          showsFeed: "allItems",
+          showsFeed: DrawerItems.AllItems,
           isLoading: false,
           feedToShow: feed,
         });
@@ -155,35 +183,35 @@ class App extends Component {
   getReadItems = () => {
     this.setState({
       feedToShow: this.state.read,
-      showsFeed: "readItems",
+      showsFeed: DrawerItems.ReadItems,
       isLoading: false,
     });
   };
 
-  onClickDrawerItem = (id) => {
-    if (id !== "search") this.setState({ isSearch: false });
+  onClickDrawerItem = (id: string) => {
+    if (id !== DrawerItems.Search) this.setState({ isSearch: false });
 
     switch (id) {
-      case "allItems":
+      case DrawerItems.AllItems:
         this.scrollToTop();
         this.activateLoadingIndicator(() => this.getAllItemsToShow());
         break;
-      case "favorites":
+      case DrawerItems.Favorites:
         this.scrollToTop();
         this.activateLoadingIndicator(() => this.getFavorites());
         break;
-      case "addFeed":
+      case DrawerItems.AddFeed:
         this.toggleAddFeedDialog();
         break;
-      case "readItems":
+      case DrawerItems.ReadItems:
         this.scrollToTop();
         this.activateLoadingIndicator(() => this.getReadItems());
         break;
-      case "search":
+      case DrawerItems.Search:
         this.setState({ isSearch: true });
         this.activateLoadingIndicator(() => this.getAllItemsToShow());
         break;
-      case "settings":
+      case DrawerItems.Settings:
         this.toggleSettings();
         break;
 
@@ -194,7 +222,7 @@ class App extends Component {
     }
   };
 
-  activateLoadingIndicator(func) {
+  activateLoadingIndicator(func: () => void) {
     this.setState({ isLoading: true });
     func();
   }
@@ -206,10 +234,10 @@ class App extends Component {
     });
   }
 
-  onClickStarToggle = (id) => {
+  onClickStarToggle = (id: string) => {
     let favoritesCopy = new Map(this.state.favorites);
     let feedToShowCopy = new Map(this.state.feedToShow);
-    const entry = feedToShowCopy.get(id);
+    const entry: any = feedToShowCopy.get(id);
 
     if (favoritesCopy.has(id)) {
       entry.isFavorite = false;
@@ -223,16 +251,15 @@ class App extends Component {
 
     this.setState({ feedToShow: feedToShowCopy, favorites: favoritesCopy });
 
-    let fav = [];
-    favoritesCopy.forEach((entry) => (fav = [...fav, entry]));
-
+    // Turn maps into array
+    const fav = Array.from(favoritesCopy).map(([_, value]) => value);
     this.props.firebase.createFavoritesEntry(fav, this.state.authUser);
   };
 
-  onClickCard = (id) => {
+  onClickCard = (id: string) => {
     let readCopy = new Map(this.state.read);
     let feedToShowCopy = new Map(this.state.feedToShow);
-    const entry = feedToShowCopy.get(id);
+    const entry: any = feedToShowCopy.get(id);
 
     entry.isRead = true;
     readCopy.set(entry.link, entry);
@@ -240,9 +267,8 @@ class App extends Component {
 
     this.setState({ feedToShow: feedToShowCopy, read: readCopy });
 
-    let read = [];
-    readCopy.forEach((entry) => (read = [...read, entry]));
-
+    // Turn maps into array
+    const read = Array.from(readCopy).map(([_, value]) => value);
     this.props.firebase.createIsReadEntry(read, this.state.authUser);
 
     // Open article in ScreenReader mode or as standard website
@@ -250,17 +276,16 @@ class App extends Component {
     else window.open(id);
   };
 
-  screenReaderGetArticle = (link) => {
-    getArticleScreenReader(link).then((link) => {
-      window.open(link, "_blank");
-    });
+  screenReaderGetArticle = (link: string) => {
+    const apiLink = getArticleScreenReader(link);
+    window.open(apiLink, "_blank");
   };
 
   onClickRefresh = () => {
     this.setState({ isLoading: true });
     this.scrollToTop();
 
-    if (this.state.showsFeed === "allItems") this.getAllItemsToShow();
+    if (this.state.showsFeed === DrawerItems.AllItems) this.getAllItemsToShow();
     else this.getFeedToShow(this.state.showsFeed);
   };
 
@@ -272,7 +297,7 @@ class App extends Component {
     this.setState({ isShowSettings: !this.state.isShowSettings });
   };
 
-  deleteFeed = (id) => {
+  deleteFeed = (id: string) => {
     const newFeedListDrawer = this.state.feedListDrawer.filter(
       (feed) => feed.id !== id
     );
@@ -308,7 +333,7 @@ class App extends Component {
     );
   };
 
-  handleAddFeed = (name, url, thumbnail = "") => {
+  handleAddFeed = (name: string, url: string, thumbnail: string = "") => {
     //Prevent duplicate feeds
     if (this.state.feedListDrawer.filter((item) => item.id === url).length) {
       this.setDialogTitle("Error", "The feed is already in your list.");
@@ -329,7 +354,7 @@ class App extends Component {
       newFeedListDrawerEntry.thumbnail
     )
       .then((feed) => {
-        let feedListDrawer = [
+        let feedListDrawer: FeedList = [
           ...this.state.feedListDrawer,
           newFeedListDrawerEntry,
         ];
@@ -376,11 +401,7 @@ class App extends Component {
           isOpen={this.state.isShowSettings}
           toggleSettings={this.toggleSettings}
           deleteFeed={this.deleteFeed}
-          isDarkMode={this.state.isDarkMode}
-          toggleDarkMode={this.toggleDarkMode}
           loggedInAs={this.state.authUserEmail}
-          isCompact={this.state.isCompact}
-          toggleCompactLayout={this.toggleCompactLayout}
         />
 
         <Drawer
@@ -405,7 +426,6 @@ class App extends Component {
           isLoading={this.state.isLoading}
           showsFeed={this.state.showsFeed}
           onClickRefresh={this.onClickRefresh}
-          feedListDrawer={this.state.feedListDrawer}
           isCompact={this.state.isCompact}
           isSearch={this.state.isSearch}
           favorites={this.state.favorites}

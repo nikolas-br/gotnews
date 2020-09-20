@@ -4,6 +4,15 @@ import MenuItem from "@material-ui/core/MenuItem";
 import IconButton from "@material-ui/core/IconButton";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 
+type PopoverMenuProps = {
+  isCompact: boolean;
+  isDarkMode: boolean;
+  isScreenReader: boolean;
+  toggleCompactLayout: () => void;
+  toggleDarkMode: () => void;
+  toggleScreenReader: () => void;
+};
+
 export default function PopoverMenu({
   isCompact,
   isDarkMode,
@@ -11,11 +20,10 @@ export default function PopoverMenu({
   toggleCompactLayout,
   toggleDarkMode,
   toggleScreenReader,
-  iconStyle,
-}) {
+}: PopoverMenuProps) {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const handleClick = (event) => {
+  const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
   };
 

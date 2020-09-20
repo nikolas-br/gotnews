@@ -28,11 +28,12 @@ import SearchIcon from "@material-ui/icons/Search";
 import PopoverMenu from "./popoverMenu";
 
 import * as ROUTES from "../routes";
-import { withRouter } from "react-router-dom";
+import { RouteComponentProps, withRouter } from "react-router-dom";
+import { DrawerItems, FeedList } from "../types";
 
 const drawerWidth = 240;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: any) => ({
   root: {
     display: "flex",
   },
@@ -65,8 +66,36 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ResponsiveDrawer = (props) => {
-  const { container } = props;
+type ResponsiveDrawerProps = {
+  onClickDrawerItem: (id: string) => void;
+  feedListDrawer: FeedList;
+  favoritesCount: number;
+  readCount: number;
+  doSignOut: () => void;
+  // Props for popover menu on top right corner:
+  isCompact: boolean;
+  isDarkMode: boolean;
+  isScreenReader: boolean;
+  toggleCompactLayout: () => void;
+  toggleDarkMode: () => void;
+  toggleScreenReader: () => void;
+  history: RouteComponentProps;
+} & RouteComponentProps;
+
+const ResponsiveDrawer = ({
+  onClickDrawerItem,
+  feedListDrawer,
+  favoritesCount,
+  readCount,
+  doSignOut,
+  isCompact,
+  isDarkMode,
+  isScreenReader,
+  toggleCompactLayout,
+  toggleDarkMode,
+  toggleScreenReader,
+  history,
+}: ResponsiveDrawerProps) => {
   const classes = useStyles();
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -80,8 +109,8 @@ const ResponsiveDrawer = (props) => {
   };
 
   const handleLogout = () => {
-    props.doSignOut();
-    props.history.push(ROUTES.SIGN_IN);
+    doSignOut();
+    history.push(ROUTES.SIGN_IN);
   };
 
   const drawer = (
@@ -90,32 +119,41 @@ const ResponsiveDrawer = (props) => {
 
       <Divider />
       <List>
-        <ListItem button onClick={() => props.onClickDrawerItem("allItems")}>
+        <ListItem
+          button
+          onClick={() => onClickDrawerItem(DrawerItems.AllItems)}
+        >
           <ListItemIcon>
             <AllInboxIcon />
           </ListItemIcon>
           <ListItemText primary=" All feeds" />
         </ListItem>
 
-        <ListItem button onClick={() => props.onClickDrawerItem("favorites")}>
+        <ListItem
+          button
+          onClick={() => onClickDrawerItem(DrawerItems.Favorites)}
+        >
           <ListItemIcon>
-            <Badge badgeContent={props.favoritesCount} max={99} color="primary">
+            <Badge badgeContent={favoritesCount} max={99} color="primary">
               <StarIcon style={{ color: "#FFD700" }} />
             </Badge>
           </ListItemIcon>
           <ListItemText primary="Favorites" />
         </ListItem>
 
-        <ListItem button onClick={() => props.onClickDrawerItem("readItems")}>
+        <ListItem
+          button
+          onClick={() => onClickDrawerItem(DrawerItems.ReadItems)}
+        >
           <ListItemIcon>
-            <Badge badgeContent={props.readCount} max={99} color="primary">
+            <Badge badgeContent={readCount} max={99} color="primary">
               <CheckIcon style={{ color: "green" }} />
             </Badge>
           </ListItemIcon>
           <ListItemText primary="Clicked articles" />
         </ListItem>
 
-        <ListItem button onClick={() => props.onClickDrawerItem("search")}>
+        <ListItem button onClick={() => onClickDrawerItem(DrawerItems.Search)}>
           <ListItemIcon>
             <SearchIcon />
           </ListItemIcon>
@@ -123,16 +161,14 @@ const ResponsiveDrawer = (props) => {
         </ListItem>
         <Divider />
 
-        {props.feedListDrawer.map((item) => (
+        {feedListDrawer.map((item: any) => (
           <ListItem
             button
             key={item.id}
-            onClick={() => props.onClickDrawerItem(item.id)}
+            onClick={() => onClickDrawerItem(item.id)}
           >
             <ListItemIcon>
-              <Avatar src={item.thumbnail} className={classes.avatar}>
-                {item.avatarName}
-              </Avatar>
+              <Avatar src={item.thumbnail}>{item.avatarName}</Avatar>
             </ListItemIcon>
             <ListItemText primary={item.name} />
           </ListItem>
@@ -141,7 +177,7 @@ const ResponsiveDrawer = (props) => {
         <ListItem
           button
           style={{ marginBottom: "80px" }}
-          onClick={() => props.onClickDrawerItem("addFeed")}
+          onClick={() => onClickDrawerItem(DrawerItems.AddFeed)}
         >
           <ListItemIcon>
             <Avatar
@@ -169,7 +205,7 @@ const ResponsiveDrawer = (props) => {
               alignItems="center"
             >
               <Grid item>
-                <IconButton onClick={() => props.onClickDrawerItem("settings")}>
+                <IconButton onClick={() => onClickDrawerItem("settings")}>
                   <SettingsIcon />
                 </IconButton>
               </Grid>
@@ -216,12 +252,12 @@ const ResponsiveDrawer = (props) => {
             </Typography>
           </div>
           <PopoverMenu
-            isCompact={props.isCompact}
-            isDarkMode={props.isDarkMode}
-            isScreenReader={props.isScreenReader}
-            toggleCompactLayout={props.toggleCompactLayout}
-            toggleDarkMode={props.toggleDarkMode}
-            toggleScreenReader={props.toggleScreenReader}
+            isCompact={isCompact}
+            isDarkMode={isDarkMode}
+            isScreenReader={isScreenReader}
+            toggleCompactLayout={toggleCompactLayout}
+            toggleDarkMode={toggleDarkMode}
+            toggleScreenReader={toggleScreenReader}
           />
         </Toolbar>
       </AppBar>
@@ -229,7 +265,6 @@ const ResponsiveDrawer = (props) => {
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Hidden smUp implementation="css">
           <Drawer
-            container={container}
             variant="temporary"
             anchor={theme.direction === "rtl" ? "right" : "left"}
             open={mobileOpen}

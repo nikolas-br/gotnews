@@ -1,5 +1,4 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItem from "@material-ui/core/ListItem";
@@ -16,33 +15,36 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Avatar from "@material-ui/core/Avatar";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import DeleteIcon from "@material-ui/icons/Delete";
+import { FeedList } from "../types";
 
-const useStyles = makeStyles((theme) => ({
-  appBar: {
-    position: "relative",
-  },
-  title: {
-    marginLeft: theme.spacing(2),
-    flex: 1,
-  },
-}));
-
-const Transition = React.forwardRef(function Transition(props, ref) {
+const Transition: any = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-export function SettingsDialog(props) {
-  const classes = useStyles();
+type SettingsDialogProps = {
+  isOpen: boolean;
+  feedListDrawer: FeedList;
+  toggleSettings: () => void;
+  deleteFeed: (id: string) => void;
+  loggedInAs: string;
+};
 
+export function SettingsDialog({
+  isOpen,
+  feedListDrawer,
+  toggleSettings,
+  deleteFeed,
+  loggedInAs,
+}: SettingsDialogProps) {
   return (
     <div>
-      <Dialog fullScreen open={props.isOpen} TransitionComponent={Transition}>
+      <Dialog fullScreen open={isOpen} TransitionComponent={Transition}>
         <AppBar position="relative" style={{ textAlign: "center" }}>
           <Toolbar>
             <Grid item xs={12}>
               <Typography variant="h6">Settings</Typography>
             </Grid>
-            <IconButton onClick={() => props.toggleSettings()}>
+            <IconButton onClick={() => toggleSettings()}>
               <CloseIcon />
             </IconButton>
           </Toolbar>
@@ -56,13 +58,10 @@ export function SettingsDialog(props) {
 
                 <Grid item xs={12}>
                   <List>
-                    {props.feedListDrawer.map((item) => (
+                    {feedListDrawer.map((item) => (
                       <ListItem key={item.id}>
                         <ListItemIcon>
-                          <Avatar
-                            src={item.thumbnail}
-                            className={classes.avatar}
-                          >
+                          <Avatar src={item.thumbnail}>
                             {item.avatarName}
                           </Avatar>
                         </ListItemIcon>
@@ -70,7 +69,7 @@ export function SettingsDialog(props) {
 
                         <ListItemSecondaryAction>
                           <IconButton
-                            onClick={() => props.deleteFeed(item.id)}
+                            onClick={() => deleteFeed(item.id)}
                             edge="end"
                             aria-label="delete"
                           >
@@ -93,8 +92,8 @@ export function SettingsDialog(props) {
                 >
                   <Box mt={10} mb={5}>
                     <Typography gutterBottom>
-                      {props.loggedInAs
-                        ? "You are logged in as " + props.loggedInAs
+                      {loggedInAs
+                        ? "You are logged in as " + loggedInAs
                         : "You are not logged in"}
                     </Typography>
                   </Box>

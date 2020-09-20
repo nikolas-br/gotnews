@@ -5,6 +5,17 @@ import AllInboxIcon from "@material-ui/icons/AllInbox";
 import StarIcon from "@material-ui/icons/Star";
 import CheckIcon from "@material-ui/icons/Check";
 import { TextField, Divider, Typography, Button } from "@material-ui/core";
+import { Feed } from "../types";
+
+type SearchScreenProps = {
+  classes: any;
+  CardLayout: React.ComponentType<any>;
+  feedToShow: Map<string, Feed>;
+  favorites: Map<string, Feed>;
+  read: Map<string, Feed>;
+  onClickStarToggle: (id: string) => void;
+  onClickCard: (id: string) => void;
+};
 
 export const SearchScreen = ({
   classes,
@@ -14,17 +25,17 @@ export const SearchScreen = ({
   read,
   onClickStarToggle,
   onClickCard,
-}) => {
+}: SearchScreenProps) => {
   const [searchTerms, updateSearchTerms] = useState("");
-  const [articlesMatches, updateArticlesMatches] = useState([]);
-  const [favoritesMatches, updateFavoritesMatches] = useState([]);
-  const [clickedMatches, updateClickedMatches] = useState([]);
+  const [articlesMatches, updateArticlesMatches] = useState<Feed[]>([]);
+  const [favoritesMatches, updateFavoritesMatches] = useState<Feed[]>([]);
+  const [clickedMatches, updateClickedMatches] = useState<Feed[]>([]);
 
   const articlesArr = Array.from(feedToShow.values());
   const favoritesArr = Array.from(favorites.values());
   const readArr = Array.from(read.values());
 
-  const onSearchChange = (e) => {
+  const onSearchChange = (e: any) => {
     updateSearchTerms(e.target.value);
   };
 
@@ -41,7 +52,10 @@ export const SearchScreen = ({
     updateClickedMatches(read);
   };
 
-  const getSearchedArticles = (articlesArr, searchTermsArr) => {
+  const getSearchedArticles = (
+    articlesArr: Feed[],
+    searchTermsArr: string[]
+  ) => {
     return articlesArr.filter((e) => {
       const searchText = [e.title, e.rootTitle, e.description]
         .join(" ")
@@ -111,6 +125,15 @@ export const SearchScreen = ({
   );
 };
 
+type SearchResultsProps = {
+  articlesMatches: Feed[];
+  favoritesMatches: Feed[];
+  clickedMatches: Feed[];
+  onClickCard: (id: string) => void;
+  onClickStarToggle: (id: string) => void;
+  CardLayout: React.ComponentType<any>;
+};
+
 const SearchResults = ({
   articlesMatches,
   favoritesMatches,
@@ -118,7 +141,7 @@ const SearchResults = ({
   onClickCard,
   onClickStarToggle,
   CardLayout,
-}) => {
+}: SearchResultsProps) => {
   // Default value for compact layout
   const isCompact = 1;
 
